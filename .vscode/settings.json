@@ -1,0 +1,22 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "python.formatting.provider": "none",
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "mysql.cedroinfo.com.br",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "cedroibr7",
+            "database": "cedroibr7",
+            "username": "cedroibr7",
+            "password": "Acd3590t"
+        }
+    ]
+}
