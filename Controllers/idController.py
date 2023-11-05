@@ -1,33 +1,51 @@
-import streamlit as st
-import Services.database as db
+from Services.database import get_db_connection
 
-def get_items(nTipo):
-    db.cursor.execute('SELECT ididentification, nameidentification FROM identification ORDER BY nameidentification')
-    items = db.cursor.fetchall()
-    if nTipo == 0:
-        items.append([0, '<<New>>'])
-    else:    
-        items.append([0, ' '])
-    items.sort(key=lambda x:x[1])
-    return items
+def get_all_ids(nTipo):
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT ididentification, nameidentification FROM identification ORDER BY nameidentification')
+        ids = [(ididentification, nameidentification) for (ididentification, nameidentification) in cursor.fetchall()]
+        conn.close()
+        if nTipo == 0:
+            ids.append([0, '<<New>>'])
+        else:    
+            ids.append([0, ' '])
+        ids.sort(key=lambda x:x[1])
+        return ids
+    return []
 
-def add_or_update_item(identification):
-    if identification.idcity!=0:
-        query = 'UPDATE identification SET nameidentification = (%s) WHERE ididentification = %s'
-        db.cursor.execute(query, (identification.nameidentification, identification.ididentification))
-    else:
-        if identification.nameidentification:
-            query = 'INSERT INTO identificationy (nameidentification) VALUES (%s)'
-            db.cursor.execute(query, (identification.nameidentification,))
-    
-def delete_item(item_id):
-    db.cursor.execute('DELETE FROM identification WHERE ididentification = '+str(item_id))
-    db.cnxn.commit()
-    
-def get_item_details(item_id):
-    db.cursor.execute('SELECT ididentification, nameidentification FROM identification WHERE ididentification ='+ str(item_id))
-    item_details = db.cursor.fetchone()
-    return  item_details
+def get_det_identification(id):
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT ididentification, nameidentification FROM identification WHERE ididentification = %s", (id,))
+        id_data = cursor.fetchone()
+        conn.close()
+        if id_data:
+            return id_data
+    return None
 
-  
-    
+def update_identification(identification):
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE identification SET nameidentification = %s WHERE ididentification = %s", (identification.nameidentification, identification.ididentification))
+        conn.commit()
+        conn.close()
+
+def insert_identification(nameidentification):
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO identification (nameidentification) VALUES (%s)", (nameidentification,))
+        conn.commit()
+        conn.close()
+
+def delete_identification(id):
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM identification WHERE ididentification ='+ str(id))
+        conn.commit()
+        conn.close()
