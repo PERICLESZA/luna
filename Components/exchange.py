@@ -1,13 +1,13 @@
 import streamlit as st
 import Models.exchange as Exchange
 import Models.bank as Bank
+import Models.customer as Customer
 import Controllers.exchangeController as exchangeC
 import Controllers.customerController as customerC
-import Controllers.cityController as cityC
 import Controllers.bankController as bankC
 import Controllers.idController as idC
-import Controllers.classController as classC
-import os
+import Controllers.countryController as countryC
+import Controllers.parameterController as parameterC
 import Styles as sty
 import subprocess
 import pandas as pd
@@ -15,9 +15,7 @@ from st_aggrid import AgGrid, GridUpdateMode, JsCode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 import Styles as sty
 
-
 def mainExchange():
-
     i_id = 0
     items = customerC.get_all_customers(0, 0)
     selected_i_id = st.selectbox(
@@ -27,9 +25,9 @@ def mainExchange():
         i_id = selected_i_id[0]
 
     if i_id==0:
-        st.write('novo')
+        newCustromer()
     else:        
-        exchangeValues(items)
+        exchangeValues(items, i_id)
         tab_cashflow(i_id)
 
 def rerun_script():
@@ -58,7 +56,6 @@ def add_new_exchange():
         Exchange.dtcashflow = sty.overlaid_input("Date", '')
     with pnCol3:
         Exchange.tcashflow = sty.overlaid_input("Time", '')
-
 
 def tab_cashflow(i_id):
 
@@ -93,21 +90,6 @@ def tab_cashflow(i_id):
     df['Reciev'] = df['Reciev'].apply(lambda x: format(round(x, 2), ".2f"))
     df['Pay'] = df['Pay'].apply(lambda x: format(round(x, 2), ".2f"))
 
-    # Selectbox company -------------------------------------------------------
-    # items = tuple(customerC.get_all_customers(1,1))
-    items = (1,2,3,4,5)
-    # x=format_func=lambda x: x[1]
-    # if (Exchange.fk_idcustomer is not None) and (Exchange.fk_idcustomer > 0):
-    #     indice = next((i for i, item in enumerate(items)
-    #                   if item[0] == Exchange.fk_idcustomer), None)
-    #     selected_item_id = sty.overlaid_selectbox("Company:", items, indice, x)
-    # else:
-    #     selected_item_id = sty.overlaid_selectbox("Company:", items, 0, x)
-    # if selected_item_id:
-    #     Exchange.fk_idcustomer = selected_item_id[0]
-    # --------------------------------------------------------------------------------
-
-
     gd = GridOptionsBuilder.from_dataframe(df)
     gd.configure_pagination(enabled=True, paginationAutoPageSize=10)
     # gd.configure_default_column(editable=True, groupable=True)
@@ -130,11 +112,6 @@ def tab_cashflow(i_id):
     """)
     
     # gd.configure_columns(df, cellStyle=cellstyle_jscode)
-    # gd.configure_column('Company', editable=True, cellEditor='agSelectCellEditor',
-    #                     cellEditorParams={'values': items})
-
-    # gd.configure_column('Bank', editable=True, cellEditor='agSelectCellEditor',
-    #                     cellEditorParams={'values': iBank})
     
     gridoptions = gd.build()
 
@@ -178,7 +155,12 @@ def tab_cashflow(i_id):
         if (float(nTReciev) > 0):
             st.text(cleaned_value)
 
-def exchangeValues(iCustomer):
+def exchangeValues(iCustomer,i_id):
+    
+    nPercComiss = float(parameterC.get_det_parameter()["exchange_comission"])
+    calc_percvalue = 0
+    conv_value = 0 
+    
     with st.form(key='form1'):
         cEv1, cEv2, cEv3, cEv4, cEv5,cEv6,cEv7,cEv8,cEv9,cEv10,cEv11,cEv12 = st.columns([1.5,1,.6,.6,.7,.6,.7,.8,1,1,.7,1])
         with cEv1:
@@ -187,24 +169,72 @@ def exchangeValues(iCustomer):
             if selected_item_id:
                 Exchange.fk_idbankmaster = selected_item_id[0]
         with cEv2:
-            Exchange.valuecashflow = sty.overlaid_input("Value", '')
+            Exchange.valuecashflow = sty.overlaid_number("Value", "%.2f")
         with cEv3:
-            Exchange.centsflow = sty.overlaid_input("Cents 1", '')
+            calc_cents1 = 0
+            if Exchange.valuecashflow: 
+                conv_value = Exchange.valuecashflow
+                calc_cents1 = round(conv_value - int(conv_value),2)
+            Exchange.centsflow = sty.overlaid_input("Cents 1", calc_cents1)
         with cEv4:
-            Exchange.percentflow = sty.overlaid_input("%Comis", '')
+            Exchange.percentflow = sty.overlaid_input("%Comis", nPercComiss)
         with cEv5:
-            Exchange.valuepercentflow = sty.overlaid_input("% Value", '')
+            if Exchange.valuecashflow: 
+                calc_percvalue = abs(round(conv_value - (conv_value * (1 + nPercComiss / 100)), 2))
+            Exchange.valuepercentflow = sty.overlaid_input(
+                "% Value", calc_percvalue)
         with cEv6:
-            Exchange.cents2flow = sty.overlaid_input("Cents 2", '')
+            calc_cents2 = (conv_value - calc_cents1) - calc_percvalue
+            calc_cents2 = round(calc_cents2 - int(calc_cents2), 2)
+            Exchange.cents2flow = sty.overlaid_input("Cents 2", calc_cents2)
         with cEv7:
             Exchange.wire = st.checkbox("Wire")
         with cEv8:
-            Exchange.totalflow = sty.overlaid_input("Recieve", '')
+            calc_reciev = round(calc_cents1 + calc_cents2 + calc_percvalue,2)
+            Exchange.totalflow = sty.overlaid_input("Recieve", calc_reciev)
         with cEv9:
-            Exchange.totaltopay = sty.overlaid_input("Pay", '')
+            calc_pay = round(conv_value - calc_reciev,2)
+            Exchange.totaltopay = sty.overlaid_input("Pay", calc_pay)
         with cEv10:
             Exchange.ok = st.checkbox("Ok")
         with cEv11:
             subtmit_button = st.form_submit_button(label='Save')
 
+def newCustromer():
+        with st.form(key='form1'):
+            
+            Customer.name = ''
+            Customer.dtbirth = ''
+            Customer.fk_idcountry = 0
+            Customer.phone = ''
+            
+            cEv1, cEv2, cEv3, cEv4, cEv5, cEv6, cEv7 = st.columns([3,1.2,1.2,2,2,1,1])
+            with cEv1:
+                Customer.name = sty.overlaid_input("Nome", Customer.name)
+            with cEv2:
+                Customer.phone = sty.overlaid_input("Phone", Customer.phone)
+            with cEv3:
+                Customer.dtbirth = sty.overlaid_input("Birthday", Customer.dtbirth)                # x = format_func = lambda x: x[1]
+            with cEv4:
+                itCountry = countryC.get_all_country(1)
+                x = format_func = lambda x: x[1]
+                selected_item_id = sty.overlaid_selectbox(
+                    "Country:", itCountry, 0, x)
+                if selected_item_id:
+                    Customer.fk_idcountry = selected_item_id[0]
+            with cEv5:
+                itId = idC.get_all_ids(1)
+                x = format_func = lambda x: x[1]
+                selected_item_id = sty.overlaid_selectbox(
+                    "Id:", itId, 0, x)
+                if selected_item_id:
+                    Customer.fk_ididentification = selected_item_id[0]
+            with cEv6:
+                Customer.numidentification = sty.overlaid_input("Num Id", '')
+            with cEv7:
+                subtmit_button = st.form_submit_button(label='Save')
+                if subtmit_button:
+                    customerC.insert_customer(Customer)
+                    st.success("Saved!")
 
+        

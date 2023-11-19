@@ -4,6 +4,7 @@ import Controllers.customerController as customerC
 import Controllers.cityController as cityC
 import Controllers.idController as idC
 import Controllers.classController as classC
+import Controllers.countryController as countryC
 import os
 import Styles as sty
 import subprocess
@@ -197,7 +198,22 @@ def mainCustomer():
 
         with pCol6:
 
-            Customer.attention = st.text_area("Obs:", Customer.attention)
+            # selectbox countryCustomer---------------------------------------------------------
+            items = countryC.get_all_country(1)
+            x = format_func = lambda x: x[1]
+            if (Customer.fk_idcountry is not None) and (Customer.fk_idcountry > 0):
+                indice = next((i for i, item in enumerate(items)
+                              if item[0] == Customer.fk_idcountry), None)
+                selected_item_id = sty.overlaid_selectbox(
+                    "Country:", items, indice, x)
+            else:
+                selected_item_id = sty.overlaid_selectbox(
+                    "Country:", items, 0, x)
+            if selected_item_id:
+                Customer.fk_idcountry = selected_item_id[0]
+            # --------------------------------------------------------------------------------
+
+            Customer.attention = sty.overlaid_area("Obs:", Customer.attention)
 
             img_path = 'customer_pic/'
             img_name = ''

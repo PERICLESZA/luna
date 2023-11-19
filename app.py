@@ -1,14 +1,14 @@
 import streamlit as st
-import pandas as pd
-from city import mainCity
-from classc import mainClass
-from exchange import mainExchange
-from bank import mainBank
-from exchange1 import mainExchange1
-from customer import mainCustomer
-from identification import mainIdentification
-from parameter import mainParameter
-from status import mainStatus
+from Components.city import mainCity
+from Components.country import mainCountry
+from Components.classc import mainClass
+from Components.exchange import mainExchange
+from Components.bank import mainBank
+from Components.exchange1 import mainExchange1
+from Components.customer import mainCustomer
+from Components.identification import mainIdentification
+from Components.parameter import mainParameter
+from Components.status import mainStatus
 
 st.set_page_config(layout='wide')
 hide_streamlit_style = """<style> #MainMenu {visibility: hidden;}
@@ -32,7 +32,7 @@ st.markdown("""
 
 def main():
 
-    menu = ["Exchange", "Customer", "City", "Class", "Identification", "Parameter","Bank","Exchange1","Status"]
+    menu = ["Exchange", "Bank", "City", "Class", "Country", "Customer", "Identification", "Parameter","Exchange1","Status"]
     # menu = ["Exchange", "City"]
     st.sidebar.image('./assets/LunaLogo.png', width=150)
     choice = st.sidebar.selectbox("Menu", menu)
@@ -55,6 +55,8 @@ def main():
         mainParameter()
     elif choice == "Status":
         mainStatus()
+    elif choice == "Country":
+        mainCountry()
 
 if __name__ == '__main__':
     main()

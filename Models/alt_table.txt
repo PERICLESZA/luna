@@ -1,0 +1,14 @@
+Nova tabela
+status
+-idstatus, 
+-description, 
+-emphasis
+
+country
+-idcountry
+-namecountry
+
+Novo campo
+Customer
+fk_idcountry
+
