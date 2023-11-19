@@ -1,5 +1,33 @@
 import streamlit as st
 from Services.database import get_db_connection
+import pandas as pd
+
+def get_cashflow(idCustomer):
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        sql = '''SELECT 
+                    DATE_FORMAT(dtcashflow, '%Y/%m/%d') as dtcashflow,
+                    TIME_FORMAT(tchaflow, '%H:%i') as tchaflow,
+                    check_number,
+                    valueflow,
+                    centsflow,
+                    percentflow,
+                    valuepercentflow,
+                    cents2flow,
+                    wire,
+                    totalflow,
+                    totaltopay,
+                    fk_idstatus
+        FROM cashflow WHERE fk_idcustomer = %s '''
+        cursor.execute(sql, (idCustomer,))
+        columns = [description[0] for description in cursor.description]
+        data = cursor.fetchall()
+
+        df = pd.DataFrame(data, columns=columns)
+        conn.close()
+        return data
+    return pd.DataFrame()  # Retorna um DataFrame vazio se a conexão falhar
 
 def get_all_exchange(nTipo, nCompany):
     conn = get_db_connection()

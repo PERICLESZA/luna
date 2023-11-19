@@ -5,19 +5,15 @@ def get_all_bank(nTipo):
     conn = get_db_connection()
     if conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT id, name FROM Bank ORDER BY name')
-        classes = [(id, name) for (id, name) in cursor.fetchall()]
+        cursor.execute('SELECT id as idbank, name as namebank FROM Bank ORDER BY name')
+        classes = [(idbank, namebank) for (idbank, namebank) in cursor.fetchall()]
         conn.close()
         if nTipo == 0:
             classes.append([0, '<<New>>'])
         else:    
-            classes.append([0, 'Select class...'])
-    
-        st.write(classes)        
+            classes.append([0, 'Select Bank...'])
         classes.sort(key=lambda x:x[1])
-        
         return classes
-    
     return []
 
 def get_det_bank(id):

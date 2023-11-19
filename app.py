@@ -8,6 +8,7 @@ from exchange1 import mainExchange1
 from customer import mainCustomer
 from identification import mainIdentification
 from parameter import mainParameter
+from status import mainStatus
 
 st.set_page_config(layout='wide')
 hide_streamlit_style = """<style> #MainMenu {visibility: hidden;}
@@ -29,12 +30,11 @@ st.markdown("""
     """, unsafe_allow_html=True)
 #  ---------------------------------------------------------------------------------------------
 
-
 def main():
 
-    menu = ["Exchange", "Customer", "City", "Class", "Identification", "Parameter","Bank","Exchange1"]
+    menu = ["Exchange", "Customer", "City", "Class", "Identification", "Parameter","Bank","Exchange1","Status"]
     # menu = ["Exchange", "City"]
-    st.sidebar.image('./assets/LunaLogo.png', width=200)
+    st.sidebar.image('./assets/LunaLogo.png', width=150)
     choice = st.sidebar.selectbox("Menu", menu)
     
     if choice == "Customer":
@@ -53,6 +53,8 @@ def main():
         mainBank()
     elif choice == "Parameter":
         mainParameter()
+    elif choice == "Status":
+        mainStatus()
 
 if __name__ == '__main__':
     main()

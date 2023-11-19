@@ -1,1 +1,1 @@
-select * from customer where name="Pedro Lu"
+select * from customer where idcustomer="26568"

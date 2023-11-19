@@ -12,7 +12,7 @@ def adicionar_item():
             if item_name:
                 Bank.id = 0
                 Bank.name = item_name
-                bankC.insert_bank(item_name)
+                bankC.insert_bank(Bank)
                 st.success("Added!")
                 items = bankC.get_all_bank(1)
             else:
@@ -28,9 +28,9 @@ def mainBank():
     with pCol1:
         # Carregar todos os itens da tabela
         item_id=0
-        items = bankC.get_all_bank(1)
-        x =  format_func=lambda x: x[1]
-        selected_item_id = st.selectbox("Select Bank:", items,x)
+        items = bankC.get_all_bank(0)
+        # x =  
+        selected_item_id = st.selectbox("Select Bank:", items, format_func=lambda x: x[1])
         if selected_item_id: item_id = selected_item_id[0]
         
         if item_id > 0 :
