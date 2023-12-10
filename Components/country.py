@@ -32,7 +32,7 @@ def mainCountry():
         if selected_item_id: item_id = selected_item_id[0]
         
         if item_id > 0 :
-            item_details = countryC.get_det_status(item_id)
+            item_details = countryC.get_det_country(item_id)
             item_description = item_details[1]
             new_description = st.text_input("Country:", item_description)
             

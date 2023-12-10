@@ -19,16 +19,16 @@ def add_new_customer():
     with pnCol1: st.write('')
     with pnCol2:
         # Usuário insere os detalhes do novo cliente
-        Customer.name = sty.overlaid_input("Nome",'')
-        Customer.andress = sty.overlaid_input("Adrress",'')
+        Customer.name = sty.overlaid_input("Nome",'',False)
+        Customer.andress = sty.overlaid_input("Adrress", '', False)
         items = cityC.get_all_cities(1)
 
         x = lambda x: x[1]
         selected_item_id = sty.overlaid_selectbox("City", items,0, x)
         if selected_item_id: Customer.fk_idcity = selected_item_id[0]
 
-        Customer.phone = sty.overlaid_input("Phone",'')
-        Customer.email = sty.overlaid_input("Email",'')
+        Customer.phone = sty.overlaid_input("Phone",'', False)
+        Customer.email = sty.overlaid_input("Email", '', False)
         
         items = idC.get_all_ids(1)
         x = lambda x: x[1]
@@ -53,12 +53,12 @@ def add_new_customer():
         sel_item_id = sty.overlaid_selectbox('Class', items, 0, x)
         if sel_item_id: Customer.fk_idclasscustomer = sel_item_id[0]
         
-        Customer.zipcode = sty.overlaid_input("Zipcode",'')
-        Customer.state = sty.overlaid_input("State",'')
-        Customer.phone2 = sty.overlaid_input("Phone2",'')
-        Customer.dtbirth = sty.overlaid_input("Birthday",'')
-        Customer.numidentification = sty.overlaid_input("Identification",'')
-        Customer.comissionpercent = sty.overlaid_input("% Comission",'')
+        Customer.zipcode = sty.overlaid_input("Zipcode", '', False)
+        Customer.state = sty.overlaid_input("State",'', False)
+        Customer.phone2 = sty.overlaid_input("Phone2",'', False)
+        Customer.dtbirth = sty.overlaid_input("Birthday",'', False)
+        Customer.numidentification = sty.overlaid_input("Identification",'', False)
+        Customer.comissionpercent = sty.overlaid_input("% Comission",'', False)
         
     with pnCol5: st.write('')
     with pnCol6:
@@ -90,6 +90,10 @@ def add_new_customer():
 
 def mainCustomer():
     
+    edit_disable = True
+    if st.session_state.perfil == 'A':
+        edit_disable = False
+
     i_id= 0
     items = customerC.get_all_customers(0,0)
     selected_i_id = st.selectbox("Select Customer:", items, format_func=lambda x: x[1])
@@ -115,6 +119,7 @@ def mainCustomer():
             Customer.fk_idcustomer = i_det['fk_idcustomer']
             Customer.active = i_det['active']
             Customer.fk_idclasscustomer = i_det['fk_idclasscustomer'] 
+            Customer.fk_idcountry = i_det['fk_idcountry'] 
             Customer.zipcode = i_det['zipcode'] if i_det['zipcode']!=None else 'zipcode...'
             Customer.state = i_det['state'] if i_det['state']!=None else 'state...'
             Customer.phone2 = i_det['phone2'] if i_det['phone2']!=None else 'phone2...'
@@ -126,8 +131,9 @@ def mainCustomer():
             Customer.picture_path = i_det['picture_path'] if i_det['picture_path']!=None else 'picture path...'
 
             # Begin Edition -------------------------------------------------------------------
-            Customer.name = sty.overlaid_input("Nome", Customer.name)
-            Customer.andress = sty.overlaid_input("Address", Customer.andress)
+            Customer.name = sty.overlaid_input(
+                "Nome", Customer.name, edit_disable)
+            Customer.andress = sty.overlaid_input("Address", Customer.andress, edit_disable)
 
             # selectbox city ------------------------------------------------------------------
             items = cityC.get_all_cities(1)
@@ -139,10 +145,10 @@ def mainCustomer():
                 selected_item_id = sty.overlaid_selectbox("City:", items,0, x)
                 if selected_item_id: Customer.fk_idcity = selected_item_id[0]
             # --------------------------------------------------------------------------------
-            Customer.phone = sty.overlaid_input("Phone", Customer.phone)
+            Customer.phone = sty.overlaid_input("Phone", Customer.phone, edit_disable)
             if Customer.email == None:
                 Customer.email =''
-            Customer.email = sty.overlaid_input("Mail", Customer.email)
+            Customer.email = sty.overlaid_input("Mail", Customer.email, edit_disable)
 
             # Selectbox identification -------------------------------------------------------
             items = idC.get_all_ids(1)
@@ -186,12 +192,14 @@ def mainCustomer():
             if selected_item_id: Customer.fk_idclasscustomer = selected_item_id[0]
             # --------------------------------------------------------------------------------
 
-            Customer.zipcode = sty.overlaid_input("Zipcode", Customer.zipcode)
-            Customer.state = sty.overlaid_input("State", Customer.state)
-            Customer.phone2 = sty.overlaid_input("Phone2", Customer.phone2)
-            Customer.dtbirth = sty.overlaid_input("Birthday", Customer.dtbirth)
-            Customer.numidentification = sty.overlaid_input("Num Identification", Customer.numidentification)
-            Customer.comissionpercent = sty.overlaid_input("% Comission", Customer.comissionpercent)
+            Customer.zipcode = sty.overlaid_input("Zipcode", Customer.zipcode, edit_disable)
+            Customer.state = sty.overlaid_input("State", Customer.state, edit_disable)
+            Customer.phone2 = sty.overlaid_input(
+                "Phone2", Customer.phone2, edit_disable)
+            Customer.dtbirth = sty.overlaid_input(
+                "Birthday", Customer.dtbirth, edit_disable)
+            Customer.numidentification = sty.overlaid_input("Num Identification", Customer.numidentification, edit_disable)
+            Customer.comissionpercent = sty.overlaid_input("% Comission", Customer.comissionpercent, edit_disable)
         
         with pCol5:
             st.write('')

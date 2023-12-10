@@ -1,0 +1,23 @@
+Usar Use uma biblioteca de hash segura:
+
+import bcrypt
+
+# Gere um hash para uma senha
+def hash_password(password):
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password
+
+
+Compare senhas usando o método checkpw do bcrypt:
+
+# Verifique a senha durante o login
+def check_password(input_password, hashed_password):
+    return bcrypt.checkpw(input_password.encode('utf-8'), hashed_password)
+
+
+Não armazene senhas em texto simples:
+
+# Armazene no banco de dados apenas o hash, não a senha em texto simples
+hashed_password = hash_password("senha_secreta")
+# Armazene hashed_password no banco de dados

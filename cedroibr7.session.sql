@@ -1,1 +1,1 @@
-select * from customer where idcustomer="26568"
+select * from cashflow

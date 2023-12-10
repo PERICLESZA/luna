@@ -22,7 +22,6 @@ def adicionar_item():
             items = cityC.get_all_cities(0)
             st.success("Updated!")
 
-
 def mainCity():
     pCol1, pCol2  = st.columns(2)
     with pCol1:

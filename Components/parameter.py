@@ -44,6 +44,7 @@ def adicionar_item():
             items = parameterC.get_items()
             st.success("Updated!")
 
+
 def mainParameter():
 
     pCol1, pCol2,pCol3 = st.columns([1,1,1])
@@ -51,18 +52,21 @@ def mainParameter():
         i_det = parameterC.get_det_parameter()
         
         Parameter.client = i_det['client'] if i_det['client']!=None else 'client...'
-        Parameter.exchange_vl_month = i_det['exchange_vl_month']  
-        Parameter.exchange_vl_year = i_det['exchange_vl_year']
-        Parameter.exchange_vl_wire = i_det['exchange_vl_wire']
-        Parameter.exchange_comission = i_det['exchange_comission']
+        Parameter.exchange_vl_month = float(i_det['exchange_vl_month'])
+        Parameter.exchange_vl_year = float(i_det['exchange_vl_year'])
+        Parameter.exchange_vl_wire = float(i_det['exchange_vl_wire'])
+        Parameter.exchange_comission = float(i_det['exchange_comission'])
         Parameter.fk_idclient = i_det['fk_idclient']
 
         # selectbox city ------------------------------------------------------------------
-        Parameter.client = sty.overlaid_input("Empresa", Parameter.client)
-        Parameter.exchange_vl_month = sty.overlaid_input("Vlr Month", Parameter.exchange_vl_month)
-        Parameter.exchange_vl_year = sty.overlaid_input("Vlr Year", Parameter.exchange_vl_year)
-        Parameter.exchange_vl_wire = sty.overlaid_input("Vlr Wire", Parameter.exchange_vl_wire)
-        Parameter.exchange_comission = sty.overlaid_input("% Comission", Parameter.exchange_comission)
+        Parameter.client = sty.overlaid_input("Empresa", Parameter.client, False)
+        Parameter.exchange_vl_month = sty.overlaid_number(
+            "Vlr Month", Parameter.exchange_vl_month, "%.2f", False)
+        Parameter.exchange_vl_year = sty.overlaid_number("Vlr Year", Parameter.exchange_vl_year, "%.2f", False)
+        Parameter.exchange_vl_wire = sty.overlaid_number(
+            "Vlr Wire", Parameter.exchange_vl_wire, "%.2f", False)
+        Parameter.exchange_comission = sty.overlaid_number(
+            "% Co, Falsemission", Parameter.exchange_comission, "%.2f", False)
 
         # Selectbox company -------------------------------------------------------
         items = customerC.get_all_customers(1,1)

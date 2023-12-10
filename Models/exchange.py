@@ -14,10 +14,9 @@ class Exchange:
                 tchaflow, 
                 amountflow, 
                 valueflow, 
+                valuewire,
                 centsflow, 
-                cents2flow, 
-                check_number, 
-                percentflow, 
+                cents2flow, check_number, percentflow, 
                 valuepercentflow, 
                 airpercentflow, 
                 aircomisvalue, 
@@ -38,7 +37,8 @@ class Exchange:
                 year, 
                 model, 
                 fk_idcoverage, 
-                description                    
+                description,
+                fk_idstore
         ):
         self.idcashflow = idcashflow, 
         self.fk_idcompany = fk_idcompany, 
@@ -54,6 +54,7 @@ class Exchange:
         self.tchaflow = tchaflow, 
         self.amountflow = amountflow, 
         self.valueflow = valueflow, 
+        self.valuewire = valuewire,
         self.centsflow = centsflow, 
         self.cents2flow = cents2flow, 
         self.check_number = check_number, 
@@ -79,3 +80,4 @@ class Exchange:
         self.model = model,
         self.fk_idcoverage = fk_idcoverage,
         self.description = description,
+        self.fk_idstore = fk_idstore

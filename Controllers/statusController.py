@@ -11,7 +11,7 @@ def get_all_status(nTipo):
         conn.close()
         if nTipo == 0:
             classes.append([0, '<<New>>', 0])
-        else:    
+        elif nTipo == 1:    
             classes.append([0, 'Select status...', 0])
         classes.sort(key=lambda x:x[1])
         return classes

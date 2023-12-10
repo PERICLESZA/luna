@@ -5,13 +5,14 @@ import Models.status as Status
 
 def adicionar_item():
     item_name = st.text_input("Status:")
+    item_emphasis = st.checkbox("Emphasis:")
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Add"):
             if item_name:
                 Status.idstatus = 0
                 Status.description = item_name
-                Status.emphasis = item_name
+                Status.emphasis = item_emphasis
                 statusC.insert_status(Status)
                 st.success("Added!")
                 items = statusC.get_all_status(1)
