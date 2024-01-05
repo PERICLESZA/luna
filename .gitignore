@@ -2,3 +2,6 @@ __pycache__/
 exchange1.py
 logs-periclesza-luna-master-app.py-2023-11-06T14_23_08.934Z.txt
 test*.*
+.streamlit/
+sql/
+exemplos/

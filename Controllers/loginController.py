@@ -80,7 +80,7 @@ def verify_login(login):
     if conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT login, senha, perfil  FROM login WHERE login = %s", (login,))
+            "SELECT login, senha, perfil, idlogin, nome  FROM login WHERE login = %s", (login,))
         id_data = cursor.fetchone()
         conn.close()
         if id_data:

@@ -11,6 +11,7 @@ import Controllers.parameterController as parameterC
 import Controllers.percentcheckController as percentC
 import Controllers.loginController as loginC
 import Controllers.statusController as statusC
+import Components.rpreceipt as rpRc
 import Styles as sty
 import subprocess
 import pandas as pd
@@ -18,7 +19,8 @@ from st_aggrid import AgGrid, GridUpdateMode, JsCode, ColumnsAutoSizeMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 from datetime import date, datetime
 import Styles as sty
-
+import time
+            
 def mainExchange():
     if (st.session_state.sStore == None):
         st.warning("Unregistered computer. Ask the administrator to register the computer!!!")
@@ -29,8 +31,8 @@ def mainExchange():
         cEx1, cEx2 = st.columns(2)
         with cEx1:
             i_customer = customerC.get_all_customers(0, 0)
-            selected_i_id = st.selectbox(
-                "Phone No./Name", i_customer, format_func=lambda x: x[1])
+            x = lambda x: x[1]
+            selected_i_id = sty.overlaid_selectbox("Phone No./Name:", i_customer,0 , x)
             if selected_i_id: i_id = selected_i_id[0]
         with cEx2:
             if i_id:
@@ -38,13 +40,20 @@ def mainExchange():
                 i_exchange.append([0, '<<New>>','','',0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00])
                 i_exchange.sort(key=lambda x: x[0])
                 x = format_func = lambda x: x[1] + ' ' + x[2] + " " + str(x[4])
-                sel_i_idEx = st.selectbox("Select Check to edit", i_exchange, 0, x)
+                sel_i_idEx = sty.overlaid_selectbox(
+                    "Select Check to edit:", i_exchange, 0, x)
                 if sel_i_idEx: i_id_Ex = sel_i_idEx[0]
         if i_id == 0:
             newCustromer()
         else:
+            # st.write(sel_i_idEx)
             exchangeValues(i_customer, i_id, sel_i_idEx)
             tab_cashflow(i_customer, i_id)
+
+            clRcpt1, clRcpt2 = st.columns(2)
+            with clRcpt1:
+                if Exchange.idcashflow > 0 and not Exchange.cashflowok:
+                    rpRc.mainRpReceipt(sel_i_idEx, i_id)
 
 def rerun_script():
     subprocess.Popen(["python", "exchange.py"])
@@ -154,203 +163,8 @@ def tab_cashflow(iCustomer, i_id):
             }
         };
     """)
-    # js_value   = JsCode("""
-    #     function (params) {
-    #         var value = params.data.Value; 
-    #         return value.toLocaleString(undefined,
-    #         {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    #         }
-    #     """)
-    # js_pComiss = JsCode("""
-    #     function (params) {
-    #         var pComiss = params.data.pComiss; 
-    #         return pComiss.toLocaleString(undefined,
-    #         {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    #         }
-    #     """)
-    # # js_cents1  = JsCode("""
-    # #     function (params) {
-    # #         var value = params.data.Value; 
-    # #         var cents1 = (value % 1);
-    # #         return cents1.toLocaleString('en-us',
-    # #         {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    # #         }
-    # #     """)
-    # js_comiss  = JsCode("""
-    #     function (params) {
-    #         var value = params.data.Value - params.data.Cents1;
-    #         var pcomiss = params.data.pComiss;
-    #         return ((value * pcomiss)/100).toLocaleString(undefined, 
-    #         {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    #         }
-    #     """)
-    # js_cents2  = JsCode("""
-    #     function (params) {
-    #         var value = params.data.Value - params.data.Cents1;
-    #         var pcomiss = params.data.pComiss;
-    #         var numero = ((value * pcomiss)/100);
-    #         var cents2 = numero % 1;
-    #         return cents2.toLocaleString(undefined,
-    #         {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    #         }
-    #     """)
-    # js_wire    = JsCode("""
-    #     function (params) {
-    #         var wire = params.data.Wire; 
-    #         return wire.toLocaleString(undefined,
-    #         {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    #         }
-    #     """)
-    # js_reciev  = JsCode("""
-    #     function (params) {
-    #         var reciev = params.data.Reciev; 
-    #         return reciev.toLocaleString(undefined,
-    #         {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    #         }
-    #     """)
-    # js_pay     = JsCode("""
-    #     function (params) {
-    #         var pay = params.data.Pay; 
-    #         return pay.toLocaleString(undefined,
-    #         {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    #         }
-    #     """)
-
-    # gd.configure_column("Value", header_name='Value',
-    #                     type=["numericColumn","numberColumnFilter"], 
-    #                     cellstyle={'text-align': "left"},
-    #                     editable=False,
-    #                     valueGetter=js_value) 
-    # gd.configure_column("pComiss", header_name='pComiss',
-    #                     type=["numericColumn","numberColumnFilter"], 
-    #                     cellstyle={'text-align': "left"},
-    #                     editable=False,
-    #                     valueGetter=js_pComiss) 
-    # # gd.configure_column("Cents1", header_name='Cents1',
-    # #                     type=["numericColumn","numberColumnFilter"], 
-    # #                     cellstyle={'text-align': "left"},
-    # #                     editable=False,
-    # #                     valueGetter=js_cents1) 
-    # gd.configure_column("Comiss", header_name='Comiss',
-    #                     type=["numericColumn", "numberColumnFilter"],
-    #                     editable=False,
-    #                     valueGetter=js_comiss)  
-    # gd.configure_column("Cents2", header_name='Cents2',
-    #                     type=["numericColumn","numberColumnFilter"], 
-    #                     cellstyle = {'text-align':"left"},
-    #                     editable=False, 
-    #                     valueGetter=js_cents2) 
-    # gd.configure_column("Wire", header_name='Wire',
-    #                     type=["numericColumn","numberColumnFilter"], 
-    #                     cellstyle = {'text-align':"left"},
-    #                     editable=False, 
-    #                     valueGetter=js_wire) 
-    # gd.configure_column("Reciev", header_name='Reciev',
-    #                     type=["numericColumn","numberColumnFilter"], 
-    #                     cellstyle = {'text-align':"left"},
-    #                     editable=False, 
-    #                     valueGetter=js_reciev) 
-    # gd.configure_column("Pay", header_name='Pay',
-    #                     type=["numericColumn","numberColumnFilter"], 
-    #                     cellstyle = {'text-align':"left"},
-    #                     editable=False, 
-    #                     valueGetter=js_pay) 
-
-    # cell_button_add = JsCode('''
-    # class BtnAddCellRenderer {
-    #     init(params) {
-    #         this.params = params;
-    #         this.eGui = document.createElement('div');
-    #         this.eGui.innerHTML = `
-    #          <span>
-    #             <style>
-    #             .btn_add {
-    #               background-color: limegreen;
-    #               border: none;
-    #               color: white;
-    #               text-align: center;
-    #               text-decoration: none;
-    #               display: inline-block;
-    #               font-size: 10px;
-    #               font-weight: bold;
-    #               height: 2.5em;
-    #               width: 3em;
-    #               cursor: pointer;
-    #             }
-
-    #             .btn_add :hover {
-    #               background-color: #05d588;
-    #             }
-    #             </style>
-    #             <button id='click-button' 
-    #                 class="btn_add" 
-    #                 >Add</button>
-    #          </span>
-    #       `;
-    #     }
-
-    #     getGui() {
-    #         return this.eGui;
-    #     }
-
-    # };
-    # ''')
-    # cell_button_delete = JsCode('''
-    # class BtnCellRenderer {
-    #     init(params) {
-    #         console.log(params.api.getSelectedRows());
-    #         this.params = params;
-    #         this.eGui = document.createElement('div');
-    #         this.eGui.innerHTML = `
-    #          <span>
-    #             <style>
-    #             .btn {
-    #               background-color: #F94721;
-    #               border: none;
-    #               color: white;
-    #               font-size: 10px;
-    #               font-weight: bold;
-    #               height: 2.5em;
-    #               width: 3em;
-    #               cursor: pointer;
-    #             }
-
-    #             .btn:hover {
-    #               background-color: #FB6747;
-    #             }
-    #             </style>
-    #             <button id='click-button'
-    #                 class="btn"
-    #                 >X</button>
-    #          </span>
-    #       `;
-    #     }
-
-    #     getGui() {
-    #         return this.eGui;
-    #     }
-
-    # };
-    # ''')
-   
-    # string_to_delete = "\n\n function(e) { \n \
-        # let api = e.api; \n \
-        # let sel = api.getSelectedRows(); \n \
-        # api.applyTransaction({remove: sel}); \n \
-        #     }; \n \n"
-            
-    # string_to_add_row = "\n\n function(e) { \n \
-    #     let api = e.api; \n \
-    #     let rowIndex = e.rowIndex + 1; \n \
-    #     api.applyTransaction({addIndex: rowIndex, add: [{}]}); \n \
-    #         }; \n \n"
             
     gd.configure_columns(df, cellStyle=cellstyle_jscode)
-    
-    # gd.configure_column('X', headerTooltip='Click on Button to remove row',
-                                    # editable=False, filter=False, onCellClicked=JsCode(string_to_delete),
-                                    # cellRenderer=cell_button_delete,
-                                    # autoHeight=True, suppressMovable='true')    
     
     gridoptions = gd.build()
 
@@ -368,38 +182,12 @@ def tab_cashflow(iCustomer, i_id):
     sel_row = grid_table["selected_rows"]
     st.write(total_row)
 
-    # grid_table["selected_rows"][0]['Comiss']=10*10
-    # st.write(grid_table["selected_rows"][0]['Wire'])
-    # sel_row[0]["wire"] =  10*2
-    # sel_row = grid_table["selected_rows"]
-
-    # cBt1, cBt2, cBt3,cBt4, cBt5 = st.columns([.6,.6,2,2,.1])
-    
     # editar o check num form abaixo da tabela    --------------------
     if (sel_row):
        if sel_row[0]['Check'] != "Total":
            delExchange(sel_row)
         #   editExchangeValues(iCustomer, i_id, sel_row, gd) 
     #-----------------------------------------------------------------
-        # with cBt1:
-        #     if st.button("Salvar", disabled=not edit_disable):
-        #         st.write('Salvar')
-        #         st.write(sel_row[0]["Date"])
-        #         st.write(sel_row[0]["Value"])
-        # with cBt2:
-        #     if st.button("Editar", disabled=not edit_disable):
-        #         st.write('Editar')
-        # with cBt3:
-        #     if st.button("Excluir", disabled=not edit_disable):
-        #         st.write('Excluir')
-        # with cBt4:
-        #     total_row.set_index('', inplace=True)
-        #     st.write(total_row)
-
-        # if sel_row:
-        #     # st.write(sel_row)
-            # exchangeC.update_exchange(sel_row)
-        #     #editExchangeValues(iCustomer, i_id, gsenha, sel_row)
 
 def exchangeValues(iCustomer, i_id, sel_Exchange):
 
@@ -421,8 +209,13 @@ def exchangeValues(iCustomer, i_id, sel_Exchange):
         Exchange.totalflow = 0.00
         Exchange.centsflow = 0.00
         Exchange.percentflow = 0.00
-        st.write(sel_Exchange[14])
+        # st.write(sel_Exchange[14])
         Exchange.fk_idstatus = sel_Exchange[14]
+        Exchange.cashflowok = False
+        if sel_Exchange[15]=='1':
+            Exchange.cashflowok = True
+        # Exchange.idlogin = loginC.get_det_login(st.session_state.idlogin)[4]
+        # st.write(st.session_state.idlogin)
     else:
         # st.write(nPercentCheck)
         Exchange.idcashflow=0
@@ -441,40 +234,41 @@ def exchangeValues(iCustomer, i_id, sel_Exchange):
         Exchange.percentflow = 0.00
         Exchange.fk_idstore = st.session_state.idstore
         Exchange.fk_idstatus = 3
+        Exchange.cashflowok = False
         
     with st.form(key='form1'):
-        cEv1, cEv2, cEv3, cEv4, cEv5, cEv6, cEv7, cEv8, cEv9, cEv10, cEv11, cEv12, cEv13 = st.columns(
-            [1.04, 1.1, 2, 1, .7, .7, .8, .8, 1, 1, 1, 1.3, 1])
-        with cEv1:  #date
+        cEv1, cEv2, cEv3, cEv4, cEv5, cEv6, cEv7, cEv8, cEv9, cEv10, cEv11, cEv12, cEv13, cEv14 = st.columns(
+            [1.2, 1.1, 2, 1, .7, .9, .8, .8, 1, 1, 1, 1.1, 1,1])
+        with cEv1:  # date
             Exchange.dtcashflow = sty.overlaid_date("Date", Exchange.dtcashflow)
-        with cEv2:  #time
+        with cEv2:  # time
             Exchange.tchaflow = sty.overlaid_time("Time", Exchange.tchaflow)
-        with cEv3:  #company
+        with cEv3:  # company
             x = format_func = lambda x: x[1]
             selected_item_id = sty.overlaid_selectbox(
                 "Company:", iCustomer, 0, x)
             if selected_item_id:
                 Exchange.fk_idbankmaster = selected_item_id[0]
-        with cEv4:  #valueflow
+        with cEv4:  # valueflow
             Exchange.valueflow = sty.overlaid_number(
                 "Value", Exchange.valueflow, "%.2f", False)
-        with cEv5:  #cents1
+        with cEv5:  # cents1
             if Exchange.valueflow:
                 Exchange.centsflow = Exchange.valueflow - \
                     int(Exchange.valueflow)
             Exchange.centsflow = sty.overlaid_number(
-                "Cents 1", Exchange.centsflow, "%.2f", True)
-        with cEv6:  #percentflow
+                "Cent1", Exchange.centsflow, "%.2f", True)
+        with cEv6:  # percentflow
             # st.write(findComiss(Exchange.valueflow))
             Exchange.percentflow = float(findComiss(Exchange.valueflow))
             if Exchange.valueflow > 0.00 and Exchange.valueflow <= 200:
                 Exchange.valuepercentflow = Exchange.percentflow
                 Exchange.percentflow = sty.overlaid_number(
-                    "pComis", 0.00, "%.2f", comis_disable
+                    "%", 0.00, "%.2f", comis_disable
                 )
             else:
                 Exchange.percentflow = sty.overlaid_number(
-                    "pComis", Exchange.percentflow, "%.2f", comis_disable)
+                    "%", Exchange.percentflow, "%.2f", comis_disable)
         with cEv7:  # %value
             if Exchange.percentflow > 0.00:
                 Exchange.valuepercentflow = abs(round(
@@ -483,12 +277,9 @@ def exchangeValues(iCustomer, i_id, sel_Exchange):
             Exchange.valuepercentflow = sty.overlaid_number(
                 "%Value", Exchange.valuepercentflow, "%.2f", True)
         with cEv8:  # cents2
-            Exchange.cents2flow = (
-                Exchange.valueflow - Exchange.centsflow) - Exchange.valuepercentflow
-            Exchange.cents2flow = round(
-                Exchange.cents2flow - int(Exchange.cents2flow), 2)
-            Exchange.cents2flow = sty.overlaid_number(
-                "Cents 2", Exchange.cents2flow, "%.2f", True)
+            Exchange.cents2flow = (Exchange.valueflow - Exchange.centsflow) - Exchange.valuepercentflow
+            Exchange.cents2flow = round(Exchange.cents2flow - int(Exchange.cents2flow), 2)
+            Exchange.cents2flow = sty.overlaid_number("Cent2", Exchange.cents2flow, "%.2f", True)
         with cEv9:  # valueWire
             Exchange.valuewire = sty.overlaid_number("Wire", Exchange.valuewire, "%.2f", wire_disable)
         with cEv10: # recieve
@@ -500,16 +291,16 @@ def exchangeValues(iCustomer, i_id, sel_Exchange):
             Exchange.totaltopay = Exchange.valueflow - Exchange.totalflow
             Exchange.totaltopay = sty.overlaid_number(
                 "Pay", Exchange.totaltopay, "%.2f", True)
-        # with cEv12: #ok 
-        #     Exchange.cashflowok = st.checkbox("Ok")
-        with cEv12: #status
+        with cEv12: # status
             i_status = statusC.get_all_status(2)
             x = format_func = lambda x: x[1]
             indice = next((i for i, item in enumerate(i_status) if item[0] == Exchange.fk_idstatus), None)            
             selected_item_id = sty.overlaid_selectbox("Status:", i_status, indice, x)
             if selected_item_id:
                 Exchange.fk_idstatus = selected_item_id[0]
-        with cEv13: # button save
+        with cEv13: # caskflowok
+            Exchange.cashflowok = st.checkbox('Rcpt',Exchange.cashflowok)
+        with cEv14: # button save
             subtmit_button = st.form_submit_button(label='Save')
             if subtmit_button:
                 if Exchange.idcashflow > 0:
@@ -578,89 +369,6 @@ def findComiss(valueflow):
                 f"Error evaluating formula '{formula}': {str(e)}")
     return None
 
-# def editExchangeValues(eCustomer, i_id, sel_row, gd):
-
-#     edit_disable = True
-#     if st.session_state.perfil == 'A':
-#         edit_disable = False
-
-#     new_dt = datetime.now().date()
-#     new_tm = datetime.now().time()
-    
-#     Exchange.idcashflow = sel_row[0]['Id']
-#     Exchange.dtcashflow = "Date"
-#     Exchange.tchaflow = "Time"
-#     Exchange.fk_idcustomer = i_id
-#     Exchange.valueflow = float(sel_row[0]["Value"])
-#     Exchange.valuepercentflow = sel_row[0]["pComiss"]
-#     Exchange.totaltopay = ["Pay"]
-#     Exchange.totalflow = sel_row[0]["Reciev"]
-#     Exchange.valuewire = float(sel_row[0]["Wire"])
-#     Exchange.centsflow = sel_row[0]["Cents1"]
-#     Exchange.percentflow = sel_row[0]["pComiss"]
-
-#     cEv1, cEv2, cEv3, cEv4, cEv5, cEv6, cEv7, cEv8, cEv9, cEv10, cEv11 = st.columns(
-#         [1.5, .8, .6, .7, .7, .6, .7, .8, 1, 1, 2])
-#     with cEv1:
-#         x = format_func = lambda x: x[1]
-#         edit_item_id = sty.overlaid_selectbox(" Company:", eCustomer, 0, x)
-#         if edit_item_id:
-#             Exchange.fk_idbankmaster = edit_item_id[0]
-#     with cEv2:
-#         Exchange.valueflow = sty.overlaid_number(" Value", Exchange.valueflow, "%.2f", edit_disable)
-#     with cEv3:
-#         if Exchange.valueflow:
-#             Exchange.centsflow = Exchange.valueflow - \
-#                 int(Exchange.valueflow)
-#         Exchange.centsflow = sty.overlaid_number(
-#             " Cents 1", Exchange.centsflow, "%.2f", True)
-#     with cEv4:
-#         # st.write(findComiss(Exchange.valueflow))
-#         Exchange.percentflow = float(findComiss(Exchange.valueflow))
-#         if Exchange.valueflow > 0.00 and Exchange.valueflow <= 200:
-#             Exchange.valuepercentflow = Exchange.percentflow
-#             Exchange.percentflow = sty.overlaid_number(
-#                 " pComis", 0.00, "%.2f", edit_disable
-#             )
-#         else:
-#             Exchange.percentflow = sty.overlaid_number(
-#                 " pComis", Exchange.percentflow, "%.2f", edit_disable)
-#     with cEv5:
-#         if Exchange.percentflow > 0.00:
-#             Exchange.valuepercentflow = abs(round(
-#                 Exchange.valueflow - (Exchange.valueflow * (1.00 + Exchange.percentflow / 100)), 2))
-
-#         Exchange.valuepercentflow = sty.overlaid_number(
-#             " %Value", Exchange.valuepercentflow, "%.2f", True)
-
-#     with cEv6:
-#         Exchange.cents2flow = (
-#             Exchange.valueflow - Exchange.centsflow) - Exchange.valuepercentflow
-#         Exchange.cents2flow = round(
-#             Exchange.cents2flow - int(Exchange.cents2flow), 2)
-#         Exchange.cents2flow = sty.overlaid_number(
-#             " Cents2", Exchange.cents2flow, "%.2f", True)
-#     with cEv7:
-#         Exchange.valuewire = sty.overlaid_number(
-#             " Wire", Exchange.valuewire, "%.2f", edit_disable)
-#     with cEv8:
-#         Exchange.totalflow = round(
-#             Exchange.centsflow + Exchange.cents2flow + Exchange.valuepercentflow, 2)
-#         Exchange.totalflow = sty.overlaid_number(
-#             " Recieve", Exchange.totalflow, "%.2f", True)
-#     with cEv9:
-#         Exchange.totaltopay = Exchange.valueflow - Exchange.totalflow
-#         Exchange.totaltopay = sty.overlaid_number(
-#             " Pay", Exchange.totaltopay, "%.2f", True)
-#     with cEv10:
-#         Exchange.cashflowok = st.checkbox("Ok")
-        
-                
-#         # st.error("Do you really, really, wanna do this?")
-#         # subtmit_button = st.form_submit_button(label="Yes, I'm ready to delete",disabled=edit_disable)
-#         # if subtmit_button:
-#         #     st.success("Deleted!")
-   
 def delExchange(sel_row):
 
     # st.divider()

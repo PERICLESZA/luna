@@ -22,7 +22,9 @@ def get_cashflow(idCustomer, campoExtra):
                         totaltopay,
                         status.description,
                         store.nmstore,
-                        fk_idstatus
+                        fk_idstatus,
+                        cashflowok,
+                        idlogin
             FROM cashflow 
             LEFT JOIN status ON cashflow.fk_idstatus = status.idstatus 
             LEFT JOIN store  ON cashflow.fk_idstore = store.idstore 
